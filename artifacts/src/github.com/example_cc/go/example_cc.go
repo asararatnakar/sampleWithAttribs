@@ -97,7 +97,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	logger.Infof("cert = %v\n", cert)
+	logger.Infof("cert = %+v\n", cert)
 
 	logger.Info("##############  DONE Testing CID API as an admin user in INIT  ################")
 
@@ -247,7 +247,7 @@ func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, args []string)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	logger.Infof("cert = %v\n", cert)
+	logger.Infof("cert = %+v\n", cert)
 
 	logger.Info("##############   DONE Testing CID API as a registered user ################")
 

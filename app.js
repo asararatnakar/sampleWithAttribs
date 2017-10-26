@@ -56,11 +56,11 @@ app.set('secret', 'thisismysecret');
 app.use(expressJWT({
 	secret: 'thisismysecret'
 }).unless({
-	path: ['/users']
+	path: ['/users', '/reenroll']
 }));
 app.use(bearerToken());
 app.use(function(req, res, next) {
-	if (req.originalUrl.indexOf('/users') >= 0) {
+	if (req.originalUrl.indexOf('/users') >= 0 || req.originalUrl.indexOf('/reenroll') >= 0) {
 		return next();
 	}
 
@@ -136,6 +136,39 @@ app.post('/users', function(req, res) {
 			});
 		}
 	});
+});
+
+// Register and enroll user
+app.post('/reenroll', function(req, res) {
+        var username = req.body.username;
+        var orgName = req.body.orgName;
+        logger.debug('End point : /users');
+        logger.debug('User name : ' + username);
+        logger.debug('Org name  : ' + orgName);
+        if (!username) {
+                res.json(getErrorMessage('\'username\''));
+                return;
+        }
+        if (!orgName) {
+                res.json(getErrorMessage('\'orgName\''));
+                return;
+        }
+        var token = jwt.sign({
+                exp: Math.floor(Date.now() / 1000) + parseInt(hfc.getConfigSetting('jwt_expiretime')),
+                username: username,
+                orgName: orgName
+        }, app.get('secret'));
+        helper.getReenroll(username, orgName, true).then(function(response) {
+                if (response && typeof response !== 'string') {
+                        response.token = token;
+                        res.json(response);
+                } else {
+                        res.json({
+                                success: false,
+                                message: response
+                        });
+                }
+        });
 });
 
 // Create Channel

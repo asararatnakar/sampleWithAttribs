@@ -220,7 +220,8 @@ var getRegisteredUsers = function(username, userOrg, isJson) {
 						enrollmentID: username,
 						affiliation: userOrg + '.department1',
 						attrs: [
-					{name:'ibm',value:'raleigh', ecert:true}
+					{name:'ibm',value:'raleigh', ecert:true},
+					{name:'test1attr', value:'attrValue', ecert : true }
 				]}, member);
 				}).then((secret) => {
 					enrollmentSecret = secret;
@@ -251,6 +252,41 @@ var getRegisteredUsers = function(username, userOrg, isJson) {
 					logger.error(util.format('%s enroll failed: %s', username, err.stack ? err.stack : err));
 					return '' + err;
 				});;
+			}
+		});
+	}).then((user) => {
+		if (isJson && isJson === true) {
+			var response = {
+				success: true,
+				secret: user._enrollmentSecret,
+				message: username + ' enrolled Successfully',
+			};
+			return response;
+		}
+		return user;
+	}, (err) => {
+		logger.error(util.format('Failed to get registered user: %s, error: %s', username, err.stack ? err.stack : err));
+		return '' + err;
+	});
+};
+
+var getReenroll = function(username, userOrg, isJson) {
+	var member;
+	var client = getClientForOrg(userOrg);
+	var enrollmentSecret = null;
+        let caClient = caClients[userOrg];
+	return hfc.newDefaultKeyValueStore({
+		path: getKeyStoreForOrg(getOrgName(userOrg))
+	}).then((store) => {
+		client.setStateStore(store);
+		// clearing the user context before switching
+		client._userContext = null;
+		return client.getUserContext(username, true).then((user) => {
+			if (user && user.isEnrolled()) {
+				logger.info('Successfully loaded member from persistence');
+				return caClient.reenroll(user, [{name:'test1attr', require : true }]);
+			} else {
+				return getRegisteredUsers(userOrg, userOrg, isJson);
 			}
 		});
 	}).then((user) => {
@@ -318,4 +354,5 @@ exports.ORGS = ORGS;
 exports.newPeers = newPeers;
 exports.newEventHubs = newEventHubs;
 exports.getRegisteredUsers = getRegisteredUsers;
+exports.getReenroll = getReenroll;
 exports.getOrgAdmin = getOrgAdmin;

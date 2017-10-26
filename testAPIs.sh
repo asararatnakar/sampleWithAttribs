@@ -159,6 +159,27 @@ curl -s -X POST \
 echo
 echo
 
+echo "GET query chaincode on peer1 of Org1"
+echo
+curl -s -X GET \
+  "http://localhost:4000/channels/mychannel/chaincodes/mycc?peer=peer1&fcn=query&args=%5B%22a%22%5D" \
+  -H "authorization: Bearer $ORG1_TOKEN" \
+  -H "content-type: application/json"
+echo
+echo
+
+echo "POST request ReEnroll on Org1  ..."
+echo
+REENROLL_TOKEN=$(curl -s -X POST \
+  http://localhost:4000/reenroll \
+  -H "content-type: application/x-www-form-urlencoded" \
+  -d 'username=Jim&orgName=org1')
+echo $REENROLL_TOKEN
+REENROLL_TOKEN=$(echo $REENROLL_TOKEN | jq ".token" | sed "s/\"//g")
+echo
+echo "ReEnroll token is $REENROLL_TOKEN"
+echo
+
 echo "POST invoke chaincode on peers of Org1 and Org2"
 echo
 TRX_ID=$(curl -s -X POST \
