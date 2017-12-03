@@ -220,8 +220,7 @@ var getRegisteredUsers = function(username, userOrg, isJson) {
 						enrollmentID: username,
 						affiliation: userOrg + '.department1',
 						attrs: [
-					{name:'ibm',value:'raleigh', ecert:true},
-					{name:'test1attr', value:'attrValue', ecert : true }
+					{name:'myattrib', value:'myattribValue', ecert:true }
 				]}, member);
 				}).then((secret) => {
 					enrollmentSecret = secret;
@@ -284,7 +283,7 @@ var getReenroll = function(username, userOrg, isJson) {
 		return client.getUserContext(username, true).then((user) => {
 			if (user && user.isEnrolled()) {
 				logger.info('Successfully loaded member from persistence');
-				return caClient.reenroll(user, [{name:'test1attr', require : true }]);
+				return caClient.reenroll(user, [{name:'myattrib', require:true }]);
 			} else {
 				return getRegisteredUsers(userOrg, userOrg, isJson);
 			}

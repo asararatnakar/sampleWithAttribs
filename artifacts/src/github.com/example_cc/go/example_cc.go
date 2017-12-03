@@ -54,7 +54,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 
 	// Write the state to the ledger
 	err = stub.PutState(A, []byte(strconv.Itoa(Aval)))
-	if err != nil {
+	if err != nil{
 		return shim.Error(err.Error())
 	}
 
@@ -65,7 +65,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 
 	logger.Info("##############   Testing CID API as an admin user ################")
 
-	id, err := cid.GetID(stub)
+	/*id, err := cid.GetID(stub)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -83,15 +83,15 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	//}else{
 	// logger.Info("successfuly asserted attribute ibm\n")
 	//}
-	val, ok, err := cid.GetAttributeValue(stub, "myattrib")
-	if err != nil {
-		return shim.Error(err.Error())
-	}
-	if !ok {
-		logger.Info("Value for 'myattrib' not found")
-	} else {
-		logger.Infof("Value for attribute 'myattrib' :%s", val)
-	}
+	//val, ok, err := cid.GetAttributeValue(stub, "myattrib")
+	//if err != nil {
+	//	return shim.Error(err.Error())
+	//}
+	//if !ok {
+	//	logger.Info("Value for 'myattrib' not found")
+	//} else {
+	//	logger.Infof("Value for attribute 'myattrib' :%s", val)
+	//}
 
 	cert, err := cid.GetX509Certificate(stub)
 	if err != nil {
@@ -100,7 +100,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	logger.Infof("cert = %+v\n", cert)
 
 	logger.Info("##############  DONE Testing CID API as an admin user in INIT  ################")
-
+*/
 	return shim.Success(nil)
 
 }
@@ -108,6 +108,15 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 // Transaction makes payment of X units from A to B
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	logger.Info("########### example_cc0 Invoke ###########")
+val, ok, err := cid.GetAttributeValue(stub, "myattrib")
+        if err != nil {
+                return shim.Error(err.Error())
+        }
+        if !ok {
+                logger.Info("Value for 'myattrib' not found")
+        } else {
+                logger.Infof("Value for attribute 'myattrib' :%s", val)
+        }
 
 	function, args := stub.GetFunctionAndParameters()
 
@@ -226,28 +235,30 @@ func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, args []string)
 	}
 	logger.Infof("mspid = %s\n", mspid)
 
-	err = cid.AssertAttributeValue(stub, "ibm", "raleigh")
+	err = cid.AssertAttributeValue(stub, "myattrib", "myattribValue")
 	if err != nil {
 		return shim.Error(err.Error())
 	} else {
-		logger.Info("successfuly asserted attribute ibm")
+		logger.Info("successfuly asserted attribute \"myattrib\"")
 	}
 
-	val, ok, err := cid.GetAttributeValue(stub, "test1attr")
+	val, ok, err := cid.GetAttributeValue(stub,"myattrib")
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 	if !ok {
-		logger.Info("Value for 'test1attr' not found")
+		logger.Info("Value for 'myattrib' not found")
 	} else {
-		logger.Infof("Value for attribute 'test1attr' :%s", val)
+		logger.Infof("Value for attribute 'myattrib' is \"%s\"", val)
 	}
 
-	cert, err := cid.GetX509Certificate(stub)
+	//cert, err := cid.GetX509Certificate(stub)
+	_, err = cid.GetX509Certificate(stub)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	logger.Infof("cert = %+v\n", cert)
+        //TODO: Parse it properly 
+	//logger.Infof("cert = %+v\n", cert)
 
 	logger.Info("##############   DONE Testing CID API as a registered user ################")
 
